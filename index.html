@@ -7,102 +7,183 @@
     <style>
         body {
             margin: 0;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #fdfcfb, #e2d1c3);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: 'Microsoft JhengHei', sans-serif;
+            overflow: hidden;
         }
 
-        .card-container {
+        .envelope-container {
             position: relative;
-            width: 500px;
-            height: 300px;
-            perspective: 1500px;
-        }
-
-        .card-half {
-            position: absolute;
-            width: 50%;
-            height: 100%;
-            background: #fff5e6;
-            border: 2px solid #e0c097;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #8b5e3c;
+            width: 320px;
+            height: 220px;
             cursor: pointer;
-            transition: transform 1s ease-in-out;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             z-index: 2;
         }
 
-        .left {
-            left: 0;
-            border-right: none;
-            transform-origin: left center;
-        }
-
-        .right {
-            right: 0;
-            border-left: none;
-            transform-origin: right center;
-        }
-
-        .card-message {
-            position: absolute;
+        /* 信封底 */
+        .envelope {
             width: 100%;
             height: 100%;
-            background: #fff5e6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 22px;
-            color: #6b4226;
+            background: #d4a373;
+            position: relative;
+            z-index: 1;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        /* 信封上蓋 */
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-bottom: 110px solid #c68b59;
+            transform-origin: top;
+            transition: transform 0.8s ease;
+            z-index: 2;
+        }
+
+        /* 信件卡片 */
+        .card {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            height: 180px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
             padding: 20px;
             box-sizing: border-box;
-            text-align: center;
+            transition: top 0.8s ease;
+            border-radius: 8px;
+            z-index: 0;
+            background-image: url('https://i.imgur.com/YZl7qJo.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-content {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .card h1 {
+            color: #6b4226;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* 動畫啟動後的狀態 */
+        .open .flap {
+            transform: rotateX(180deg);
+        }
+
+        .open .card {
+            top: 20px;
+            z-index: 3;
+        }
+
+        /* 彩帶容器 */
+        .confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
             z-index: 1;
         }
 
-        /* 開啟動畫 */
-        .open-left {
-            transform: rotateY(-100deg);
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 14px;
+            background-color: gold;
+            animation: fall 3s linear forwards;
         }
 
-        .open-right {
-            transform: rotateY(100deg);
+        @keyframes fall {
+            0% {
+                transform: translateY(-10px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="card-container">
-        <div class="card-half left">👔 父</div>
-        <div class="card-half right">親 💖</div>
-        <div class="card-message">
-            親愛的爸爸，謝謝您一直以來的守護與愛！<br>
-            無論多忙碌，你總是默默守護著我們。<br />
-            祝您父親節快樂，健康開心每一天！
+    <div class="envelope-container" onclick="openEnvelope()">
+        <div class="flap"></div>
+        <div class="envelope"></div>
+        <div class="card">
+            <div class="card-content">
+                <h1>父親節快樂！</h1>
+                <p>親愛的爸爸<br>
+                    謝謝您一直以來的守護與愛 ❤️<br>
+                    無論多忙碌，你總是默默守護著我們。<br>
+                    祝您父親節快樂，健康開心每一天！<br>
+                    我永遠愛你！華華
+                </p>
+                ！<br>
+                <br />
+
+                <P></P>
+            </div>
         </div>
-        <div class="footer">我永遠愛你！</div>
     </div>
 
-    <script>
-        const left = document.querySelector('.left');
-        const right = document.querySelector('.right');
+    <div class="confetti" id="confetti"></div>
 
-        function openCard() {
-            left.classList.add('open-left');
-            right.classList.add('open-right');
+    <!-- 開信音效 -->
+    <audio id="openSound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
+
+    <script>
+        function openEnvelope() {
+            const container = document.querySelector('.envelope-container');
+            const sound = document.getElementById('openSound');
+            if (!container.classList.contains('open')) {
+                container.classList.add('open');
+                sound.play();
+                launchConfetti();
+            }
         }
 
-        left.addEventListener('click', openCard);
-        right.addEventListener('click', openCard);
+        function launchConfetti() {
+            const confettiContainer = document.getElementById('confetti');
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti-piece');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = ['gold', '#FFD700', '#FFA500'][Math.floor(Math.random() * 3)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confettiContainer.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
     </script>
 
 </body>
